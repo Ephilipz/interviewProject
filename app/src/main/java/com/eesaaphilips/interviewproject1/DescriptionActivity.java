@@ -23,12 +23,15 @@ public class DescriptionActivity extends AppCompatActivity {
     private DescriptionViewModel viewModel;
     private FloatingActionButton fab;
 
+    /**
+     * @param savedInstanceState previously saved instance bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_description);
 
-
+        //assign widgets from view
         name_tv = findViewById(R.id.name_tv);
         price_tv = findViewById(R.id.price_tv);
         imageView = findViewById(R.id.image);
@@ -40,25 +43,33 @@ public class DescriptionActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //button is clicked
+                //return to MainActivity.java and end current activity
                 startActivity(new Intent(DescriptionActivity.this, MainActivity.class));
+                //remove current activity from stack
+                finish();
             }
         });
 
+        //the id for the product passed from the adapter class
         int id = getIntent().getExtras().getInt(PRODUCT_ID);
 
+        //instantiates viewmodel using the DescriptionViewModel class
         viewModel = ViewModelProviders.of(this).get(DescriptionViewModel.class);
 
+        //retrieve product using passed id
         Product product = viewModel.loadData(id);
         Log.i("PRODUCT", String.valueOf(product == null));
 
+        //checks if product was retrieved
         if (product != null) {
             setTitle(product.getName());
 
             name_tv.setText(product.getName());
-            price_tv.setText("$" + String.valueOf(product.getPrice()));
+            price_tv.setText(String.format("$%s", String.valueOf(product.getPrice())));
             Glide.with(DescriptionActivity.this).load(product.getImageUrl()).into(imageView);
             descr_tv.setText(product.getDescription());
         } else {
+            //notifies the user that the product retrieval was unsuccessful
             Toast.makeText(this, "Error retrieving product information", Toast.LENGTH_SHORT).show();
         }
 

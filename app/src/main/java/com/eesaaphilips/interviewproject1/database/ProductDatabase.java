@@ -21,6 +21,12 @@ public abstract class ProductDatabase extends RoomDatabase {
         }
     };
 
+    /**
+     * Constructor: creates new database if an instance of the database does not exist
+     *
+     * @param context context used to build a new room database
+     * @return
+     */
     public static ProductDatabase getInstance(Context context) {
         if (instance == null) {
             synchronized (ProductDatabase.class) {
@@ -32,6 +38,9 @@ public abstract class ProductDatabase extends RoomDatabase {
         return instance;
     }
 
+    /**
+     * Destroys the database instance
+     */
     public static void destroyInstance() {
         instance = null;
     }

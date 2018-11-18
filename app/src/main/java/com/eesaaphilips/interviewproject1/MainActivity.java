@@ -32,6 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private ProductsAdapter mAdapter;
     private MainViewModel viewModel;
 
+    /**
+     * Overrides onCreate
+     * Called when activity is opened or orientation changes
+     *
+     * @param savedInstanceState saved previous state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,13 +47,17 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
+        //sets adapter for recyclerView
         mAdapter = new ProductsAdapter(this);
         recyclerView.setAdapter(mAdapter);
 
         viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
+        //attempts to get JSON object and create a product with it
+        //if attempt is unsuccessful
         parseJSON();
 
+        //checks for changes in the list and updates using Livedata
         viewModel.getmAllProducts().observe(this, new Observer<List<Product>>() {
             @Override
             public void onChanged(@Nullable List<Product> products) {
@@ -58,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Parses JSON using {@link com.android.volley.toolbox.Volley}
-     * Creates new {@link com.eesaaphilips.interviewproject1.model.Product} using retrieved information
+     * Creates new Product object using retrieved information
      */
     private void parseJSON() {
         final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, URL_JSON, null, new Response.Listener<JSONObject>() {
@@ -79,8 +89,10 @@ public class MainActivity extends AppCompatActivity {
                         int width = imageObject.getInt("width");
                         int height = imageObject.getInt("height");
 
-//                        create new Product using the information
+                        //create new Product using the information
                         Product product = new Product(id, name, description, price, imageURL, width, height);
+
+                        //insert the product into the database using the viewmodel
                         viewModel.insert(product);
                     }
                 } catch (JSONException e) {
@@ -95,10 +107,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //process request using the requestQue variable through Volley.newRequestQue
         requestQueue = Volley.newRequestQueue(MainActivity.this);
         requestQueue.add(request);
     }
 
+    /**
+     * Overrides onDestroy method
+     * destroys current instance of the database to allow other activities to instantiate a database instance
+     */
     @Override
     protected void onDestroy() {
         ProductDatabase.destroyInstance();
